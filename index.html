@@ -110,6 +110,13 @@
             display: flex;
             align-items: center;
             margin-bottom: 16px;
+            justify-content: space-between;
+        }
+        
+        .exercise-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
         }
         
         .exercise-number {
@@ -159,6 +166,114 @@
         audio::-webkit-media-controls-current-time-display,
         audio::-webkit-media-controls-time-remaining-display {
             color: #93c5fd;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .custom-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(66, 153, 225, 0.5);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .custom-checkbox:hover {
+            border-color: rgba(66, 153, 225, 0.8);
+            background: rgba(33, 150, 243, 0.1);
+        }
+        
+        .custom-checkbox.checked {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border-color: #2196F3;
+        }
+        
+        .checkmark {
+            color: white;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .custom-checkbox.checked .checkmark {
+            display: block;
+        }
+        
+        .progress-container {
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(66, 153, 225, 0.2);
+        }
+        
+        .progress-text {
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .progress-bar-bg {
+            width: 100%;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(66, 153, 243, 0.3);
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            border: 1px solid rgba(66, 153, 225, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .sync-status.saved {
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+        
+        .sync-status.saving {
+            border-color: rgba(255, 193, 7, 0.5);
+        }
+        
+        .sync-status.error {
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+        
+        .sync-icon {
+            font-size: 1.2em;
         }
         
         .page {
@@ -252,6 +367,12 @@
     </style>
 </head>
 <body>
+    <!-- Sync Status Indicator -->
+    <div id="sync-status" class="sync-status saved">
+        <span class="sync-icon">☁️</span>
+        <span id="sync-text">Saved to cloud</span>
+    </div>
+    
     <div class="container">
         <!-- Login Page -->
         <div id="login" class="page active">
@@ -275,7 +396,7 @@
             
             <a href="#" class="section-card" onclick="showPage('quick-start'); return false;">
                 <div class="section-title">360 Quick Start Exercises</div>
-                <div class="section-description">10 essential vocal warm-ups and training exercises</div>
+                <div class="section-description" id="home-progress">Loading progress...</div>
             </a>
         </div>
         
@@ -288,13 +409,27 @@
                 <p class="subtitle">Daily Vocal Training Program</p>
             </header>
             
+            <div class="progress-container">
+                <div class="progress-text">Progress: <span id="progress-count">0/10</span> exercises completed</div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar" class="progress-bar-fill" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">1</div>
-                    <div class="exercise-title">Humming 5 Tone Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">1</div>
+                        <div class="exercise-title">Humming 5 Tone Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(1)">
+                        <div id="checkbox-1" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-1" controls preload="metadata" ontimeupdate="checkAudioProgress(1)" onended="completeExercise(1)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/Wgn3t23TqWUBh64Mgf0C_07-01-M-00-Ex-1-Humming-5-Tone-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -303,11 +438,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">2</div>
-                    <div class="exercise-title">Lip Rolls 5 Tone Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">2</div>
+                        <div class="exercise-title">Lip Rolls 5 Tone Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(2)">
+                        <div id="checkbox-2" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-2" controls preload="metadata" ontimeupdate="checkAudioProgress(2)" onended="completeExercise(2)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/Knbl7UBOQl2bEkF20B3W_10-02-M-00-Ex-2-Lip-Rolls-5-Tone-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -316,11 +458,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">3</div>
-                    <div class="exercise-title">Goo Goo Goo Long Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">3</div>
+                        <div class="exercise-title">Goo Goo Goo Long Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(3)">
+                        <div id="checkbox-3" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-3" controls preload="metadata" ontimeupdate="checkAudioProgress(3)" onended="completeExercise(3)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/3t7pVzzFQGGSJ3ym34D1_13-03-M-00-Ex-3-Goo-Goo-Goo-Long-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -329,11 +478,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">4</div>
-                    <div class="exercise-title">Vocal Fry "ng" 9-Note Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">4</div>
+                        <div class="exercise-title">Vocal Fry "ng" 9-Note Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(4)">
+                        <div id="checkbox-4" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-4" controls preload="metadata" ontimeupdate="checkAudioProgress(4)" onended="completeExercise(4)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/rzjjpj19Q4aoOHW0QM0J_16-04-M-00-Ex-4-Voc-Fry-ng-9-Note-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -342,11 +498,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">5</div>
-                    <div class="exercise-title">Nay Nay Nay Octave Arpeggio</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">5</div>
+                        <div class="exercise-title">Nay Nay Nay Octave Arpeggio</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(5)">
+                        <div id="checkbox-5" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-5" controls preload="metadata" ontimeupdate="checkAudioProgress(5)" onended="completeExercise(5)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/5lPvnhyxQdmvxXCn5Gi7_19-05-M-00-Ex-5-Nay-Nay-Nay-Octave-Arpeggio-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -355,11 +518,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">6</div>
-                    <div class="exercise-title">Wee Wee Wee Head Rossini Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">6</div>
+                        <div class="exercise-title">Wee Wee Wee Head Rossini Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(6)">
+                        <div id="checkbox-6" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-6" controls preload="metadata" ontimeupdate="checkAudioProgress(6)" onended="completeExercise(6)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/2MdATSUymOAY5g4TMYwT_22-06-M-00-Ex-6-Wee-Wee-Wee-Head-Rossini-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -368,11 +538,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">7</div>
-                    <div class="exercise-title">Mum Mum Mum Scale</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">7</div>
+                        <div class="exercise-title">Mum Mum Mum Scale</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(7)">
+                        <div id="checkbox-7" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-7" controls preload="metadata" ontimeupdate="checkAudioProgress(7)" onended="completeExercise(7)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/kzvTh2USvOUp0v4tD2Si_25-07-M-00-Ex-7-Mum-Mum-Mum-Scale-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -381,11 +558,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">8</div>
-                    <div class="exercise-title">Introduction to Style</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">8</div>
+                        <div class="exercise-title">Introduction to Style</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(8)">
+                        <div id="checkbox-8" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-8" controls preload="metadata" ontimeupdate="checkAudioProgress(8)" onended="completeExercise(8)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/R1FZujEoSLauvvnclSV4_28-08-0-00-Psychology-of-Singing.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -394,11 +578,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">9</div>
-                    <div class="exercise-title">Descending Triplets Slow-to-Fast Tempo</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">9</div>
+                        <div class="exercise-title">Descending Triplets Slow-to-Fast Tempo</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(9)">
+                        <div id="checkbox-9" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-9" controls preload="metadata" ontimeupdate="checkAudioProgress(9)" onended="completeExercise(9)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/H4hJ9V7zRAy1LTLazezR_30-09-M-00-Ex-9-Descending-Triplets-Slow-to-Fast-Tempo-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -407,11 +598,18 @@
             
             <div class="exercise-card">
                 <div class="exercise-header">
-                    <div class="exercise-number">10</div>
-                    <div class="exercise-title">Major Pentatonic Pattern</div>
+                    <div class="exercise-left">
+                        <div class="exercise-number">10</div>
+                        <div class="exercise-title">Major Pentatonic Pattern</div>
+                    </div>
+                    <div class="checkbox-container" onclick="toggleCheckbox(10)">
+                        <div id="checkbox-10" class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="audio-container">
-                    <audio controls preload="metadata">
+                    <audio id="audio-10" controls preload="metadata" ontimeupdate="checkAudioProgress(10)" onended="completeExercise(10)">
                         <source src="https://d2vvqscadf4c1f.cloudfront.net/Z1kUy7SjSgCJ7DV8Lp3S_33-10-M-00-Ex-10-Major-Pentatonic-Pattern-Male-Version.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
@@ -421,30 +619,160 @@
     </div>
     
     <script>
+        const FIREBASE_URL = 'https://singing-success-default-rtdb.firebaseio.com';
+        let exerciseStates = {};
+        
+        // Load progress from Firebase
+        async function loadProgress() {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/progress.json`);
+                const data = await response.json();
+                
+                if (data) {
+                    for (let i = 1; i <= 10; i++) {
+                        if (data['exercise' + i]) {
+                            exerciseStates[i] = true;
+                            const checkbox = document.getElementById('checkbox-' + i);
+                            if (checkbox) {
+                                checkbox.classList.add('checked');
+                            }
+                        }
+                    }
+                    updateProgress();
+                    updateHomeProgress();
+                }
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+        
+        // Save progress to Firebase
+        async function saveProgress(exerciseNum, completed) {
+            try {
+                await fetch(FIREBASE_URL + '/progress/exercise' + exerciseNum + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(completed)
+                });
+            } catch (error) {
+                console.error('Error saving progress:', error);
+            }
+        }
+        
+        // Toggle checkbox manually
+        function toggleCheckbox(exerciseNum) {
+            const checkbox = document.getElementById('checkbox-' + exerciseNum);
+            const isChecked = checkbox.classList.contains('checked');
+            
+            if (isChecked) {
+                checkbox.classList.remove('checked');
+                exerciseStates[exerciseNum] = false;
+                saveProgress(exerciseNum, false);
+            } else {
+                checkbox.classList.add('checked');
+                exerciseStates[exerciseNum] = true;
+                saveProgress(exerciseNum, true);
+            }
+            
+            updateProgress();
+            updateHomeProgress();
+        }
+        
+        // Auto-complete when audio finishes
+        function completeExercise(exerciseNum) {
+            const checkbox = document.getElementById('checkbox-' + exerciseNum);
+            if (!checkbox.classList.contains('checked')) {
+                checkbox.classList.add('checked');
+                exerciseStates[exerciseNum] = true;
+                saveProgress(exerciseNum, true);
+                updateProgress();
+                updateHomeProgress();
+            }
+        }
+        
+        // Check audio progress (95% completion counts as finished)
+        function checkAudioProgress(exerciseNum) {
+            const audio = document.getElementById('audio-' + exerciseNum);
+            if (audio.duration > 0) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                if (progress >= 95) {
+                    completeExercise(exerciseNum);
+                }
+            }
+        }
+        
+        // Update progress bar on exercise page
+        function updateProgress() {
+            let completed = 0;
+            for (let i = 1; i <= 10; i++) {
+                if (exerciseStates[i]) completed++;
+            }
+            
+            const percentage = (completed / 10) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            const progressCount = document.getElementById('progress-count');
+            
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = Math.round(percentage) + '%';
+            }
+            if (progressCount) {
+                progressCount.textContent = completed + '/10';
+            }
+        }
+        
+        // Update progress on home page
+        function updateHomeProgress() {
+            let completed = 0;
+            for (let i = 1; i <= 10; i++) {
+                if (exerciseStates[i]) completed++;
+            }
+            
+            const homeProgress = document.getElementById('home-progress');
+            if (homeProgress) {
+                if (completed === 10) {
+                    homeProgress.textContent = '✓ Completed';
+                } else if (completed === 0) {
+                    homeProgress.textContent = '10 essential vocal warm-ups and training exercises';
+                } else {
+                    homeProgress.textContent = 'In Progress - ' + completed + '/10 completed (' + Math.round((completed / 10) * 100) + '%)';
+                }
+            }
+        }
+        
         function checkPassword() {
-            const password = document.getElementById('password-input').value;
+            const password = document.getElementById('password-input');
             const errorMessage = document.getElementById('error-message');
             
-            if (password === 'Pirated') {
+            if (password.value === 'Pirated') {
                 showPage('home');
-                document.getElementById('password-input').value = '';
+                password.value = '';
                 errorMessage.style.display = 'none';
+                loadProgress();
             } else {
                 errorMessage.style.display = 'block';
+                password.value = '';
+                password.focus();
             }
         }
         
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
+            pages.forEach(function(page) {
+                page.classList.remove('active');
+            });
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0, 0);
+            
+            // Load progress when navigating to quick-start page or home
+            if (pageId === 'quick-start' || pageId === 'home') {
+                loadProgress();
+            }
         }
         
         // Stop all other audio when one starts playing
         document.addEventListener('play', function(e) {
             const audios = document.querySelectorAll('audio');
-            audios.forEach(audio => {
+            audios.forEach(function(audio) {
                 if (audio !== e.target) {
                     audio.pause();
                 }
