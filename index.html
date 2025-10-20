@@ -169,6 +169,73 @@
             display: block;
         }
         
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        
+        .login-card {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 1px solid rgba(66, 153, 225, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-title {
+            font-size: 2em;
+            color: #e2e8f0;
+            margin-bottom: 24px;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(66, 153, 225, 0.3);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .login-input:focus {
+            border-color: rgba(66, 153, 225, 0.6);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .error-message {
+            color: #fc8181;
+            margin-top: 12px;
+            display: none;
+        }
+        
         @media (max-width: 600px) {
             h1 {
                 font-size: 2em;
@@ -186,8 +253,21 @@
 </head>
 <body>
     <div class="container">
+        <!-- Login Page -->
+        <div id="login" class="page active">
+            <div class="login-page">
+                <div class="login-card">
+                    <h1 style="font-size: 3em; margin-bottom: 10px;">🏴‍☠️</h1>
+                    <div class="login-title">Singing Success</div>
+                    <input type="password" id="password-input" class="login-input" placeholder="Enter Password" onkeypress="if(event.key==='Enter') checkPassword()">
+                    <button class="login-button" onclick="checkPassword()">Enter</button>
+                    <div id="error-message" class="error-message">Incorrect password. Try again!</div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Home Page -->
-        <div id="home" class="page active">
+        <div id="home" class="page">
             <header>
                 <h1>Singing Success 🏴‍☠️</h1>
                 <p class="subtitle">Your Vocal Training Journey</p>
@@ -341,6 +421,19 @@
     </div>
     
     <script>
+        function checkPassword() {
+            const password = document.getElementById('password-input').value;
+            const errorMessage = document.getElementById('error-message');
+            
+            if (password === 'Pirated') {
+                showPage('home');
+                document.getElementById('password-input').value = '';
+                errorMessage.style.display = 'none';
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        }
+        
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.remove('active'));
